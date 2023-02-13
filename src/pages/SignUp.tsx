@@ -2,6 +2,8 @@ import styled from "@emotion/styled";
 import TextField from "@mui/material/TextField";
 import Button from "@mui/material/Button";
 import { useState } from "react";
+import { createUser } from "../services/api.service";
+import { useNavigate } from "react-router-dom";
 
 const Input = styled(TextField)(() => ({
     marginTop: "12px",
@@ -24,18 +26,43 @@ const FormWrapper = styled("div")(() => ({
 
 export const SignUpPage = () => {
     const [loading, setLoading] = useState(false);
+    const navigate = useNavigate();
 
     const submitForm = async (event: any) => {
         event.preventDefault();
 
-        const { name, email, password, cpf } = event.target;
+        const { name, cpf, email, password, age } = event.target;
 
-        if ([name.value, email.value, password.value, cpf.value].some((item) => !item)) {
+        const user = {
+            name: name.value,
+            cpf: cpf.value,
+            email: email.value,
+            password: password.value,
+            age: age.value,
+        };
+
+        if (
+            !user.name ||
+            !user.cpf ||
+            !user.email ||
+            !user.password ||
+            !user.age
+        ) {
             alert("Preencha todos os campos");
             return;
         }
 
-        setLoading(true);
+        const result = await createUser(user);
+
+        if (result.ok) {
+            alert("Usuário criado com sucesso!!!");
+
+            navigate("/login");
+
+            return;
+        }
+
+        alert(result.message.toString());
     };
 
     return (
@@ -45,9 +72,21 @@ export const SignUpPage = () => {
 
             <Form onSubmit={submitForm}>
                 <Input label="Nome" type="text" name="name" id="name" />
-                <Input label="CPF" type="text" name="cpf" id="cpf" inputProps={{ maxLength: 11 }} />
+                <Input
+                    label="CPF"
+                    type="text"
+                    name="cpf"
+                    id="cpf"
+                    inputProps={{ maxLength: 11 }}
+                />
                 <Input label="Email" type="email" name="email" id="email" />
-                <Input label="Senha" type="password" name="password" id="password" />
+                <Input label="Age" type="number" name="age" id="age" />
+                <Input
+                    label="Senha"
+                    type="password"
+                    name="password"
+                    id="password"
+                />
 
                 <br />
                 <Button variant="contained" type="submit" disabled={loading}>

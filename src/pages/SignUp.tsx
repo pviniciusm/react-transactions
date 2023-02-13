@@ -2,6 +2,8 @@ import styled from "@emotion/styled";
 import TextField from "@mui/material/TextField";
 import Button from "@mui/material/Button";
 import { useState } from "react";
+import { createUser } from "../app/services/api.service";
+import { useNavigate } from "react-router-dom";
 
 const Input = styled(TextField)(() => ({
     marginTop: "12px",
@@ -24,6 +26,7 @@ const FormWrapper = styled("div")(() => ({
 
 export const SignUpPage = () => {
     const [loading, setLoading] = useState(false);
+    const navigator = useNavigate();
 
     const submitForm = async (event: any) => {
         event.preventDefault();
@@ -36,6 +39,23 @@ export const SignUpPage = () => {
         }
 
         setLoading(true);
+
+        const result = await createUser({
+            name: name.value,
+            email: email.value,
+            password: password.value,
+            cpf: cpf.value,
+            age: 20,
+        });
+
+        console.log(result);
+        alert(result.message);
+
+        if (result.ok) {
+            navigator("/");
+        }
+
+        setLoading(false);
     };
 
     return (

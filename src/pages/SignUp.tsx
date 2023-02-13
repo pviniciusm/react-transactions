@@ -52,7 +52,7 @@ export const SignUpPage = () => {
         alert(result.message);
 
         if (result.ok) {
-            navigator("/");
+            navigator("/login");
         }
 
         setLoading(false);

@@ -21,3 +21,21 @@ export const createUser = async (data: any) => {
         };
     }
 };
+
+export const login = async (data: any) => {
+    try {
+        const result = await api.post("/users/login", data);
+        console.log(result);
+
+        return result.data;
+    } catch (error: any) {
+        if (error.request) {
+            return JSON.parse(error.request.response);
+        }
+
+        return {
+            ok: false,
+            error: error.toString(),
+        };
+    }
+};

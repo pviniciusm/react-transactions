@@ -2,9 +2,12 @@ import { Button, Input, TextField } from "@mui/material";
 import { Link } from "react-router-dom";
 import { login } from "../app/services/api.service";
 import { useNavigate } from "react-router-dom";
+import { useDispatch } from "react-redux";
+import { loginAction } from "../app/store/modules/auth/authSlice";
 
 export const LoginPage = () => {
     const navigate = useNavigate();
+    const dispatch = useDispatch();
 
     const handleSubmit = async (event: any) => {
         event.preventDefault();
@@ -15,16 +18,23 @@ export const LoginPage = () => {
             return;
         }
 
-        const result = await login({
-            cpf: cpf.value,
-            password: password.value,
-        });
+        try {
+            const actionResult = await dispatch(
+                loginAction({
+                    cpf: cpf.value,
+                    password: password.value,
+                })
+            ).unwrap();
+            console.log(actionResult);
 
-        alert(result.message);
+            alert(actionResult.message);
 
-        if (result.ok) {
-            console.log(result.data);
-            navigate("/");
+            if (actionResult.ok) {
+                navigate("/");
+            }
+        } catch (error: any) {
+            alert("erro");
+            console.log(error.toString());
         }
     };
 

@@ -8,11 +8,14 @@ import Paper from "@mui/material/Paper";
 import { useState } from "react";
 import { useSelector, useDispatch } from "react-redux";
 import { Button } from "@mui/material";
-import { deleteTransactionAction } from "../store/modules/transactionsSlice";
+import {
+    deleteTransactionAction,
+    getAllTransactions,
+} from "../store/modules/transactionsSlice";
 
 export const ListTransactions = () => {
     const user: any = useSelector<any>((state) => state.auth);
-    const transactions: any = useSelector<any>((state) => state.transactions);
+    const transactions: any = useSelector<any>(getAllTransactions);
     const dispatch = useDispatch<any>();
 
     const handleDelete = (id: string) => {

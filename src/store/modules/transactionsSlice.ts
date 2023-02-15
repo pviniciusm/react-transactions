@@ -64,7 +64,7 @@ const transactionsSlice = createSlice({
 });
 
 export const transactionsSelector = (state: any) => state.transactions;
-export const { selectAll: getAllTransactions } =
+export const { selectAll: getAllTransactions, selectById: getTransaction } =
     transactionsAdapter.getSelectors<any>(transactionsSelector);
 
 export default transactionsSlice.reducer;

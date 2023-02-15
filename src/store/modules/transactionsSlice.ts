@@ -1,4 +1,8 @@
-import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
+import {
+    createAsyncThunk,
+    createEntityAdapter,
+    createSlice,
+} from "@reduxjs/toolkit";
 import {
     deleteTransaction,
     listTransactions,
@@ -8,7 +12,12 @@ export const listTransactionsAction = createAsyncThunk(
     "transactions/list",
     async (id: string) => {
         const result = await listTransactions(id);
-        return result;
+
+        if (result.ok) {
+            return result.data.transactions;
+        }
+
+        return [];
     }
 );
 
@@ -19,33 +28,45 @@ export const deleteTransactionAction = createAsyncThunk(
             transaction.id,
             transaction.userId
         );
-        return result;
+        return result.data;
     }
 );
 
+export const transactionsAdapter = createEntityAdapter<any>({
+    selectId: (transaction: any) => transaction.id,
+});
+
+/*
+{
+    ids: [12, 'abc'],
+    entities: {
+        {id: 12, title: 'mercado'},
+        {id: abc, title: 'mensalidade'}
+    }
+}
+*/
+
 const transactionsSlice = createSlice({
     name: "transactions",
-    initialState: [],
+    initialState: transactionsAdapter.getInitialState(),
     reducers: {},
     extraReducers: (builder) => {
         builder.addCase(
             listTransactionsAction.fulfilled,
-            (state, action: any) => {
-                if (action.payload.ok) {
-                    return action.payload.data.transactions;
-                }
-            }
+            transactionsAdapter.setAll
         );
 
-        builder.addCase(deleteTransactionAction.fulfilled, (state, action) => {
-            if (action.payload.ok) {
-                const transactionIndex = state.findIndex(action.payload.data);
-                state.splice(transactionIndex, 1);
-
-                return state;
-            }
-        });
+        builder.addCase(
+            deleteTransactionAction.fulfilled,
+            transactionsAdapter.removeOne
+        );
     },
 });
+
+export const transactionsSelector = transactionsAdapter.getSelectors<any>(
+    (state) => state.transactions
+);
+
+export const { selectAll: listTransactions } = transactionsSelector;
 
 export default transactionsSlice.reducer;

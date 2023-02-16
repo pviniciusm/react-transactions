@@ -11,12 +11,17 @@ import { Button } from "@mui/material";
 import {
     deleteTransactionAction,
     getAllTransactions,
+    listTransactionsAction,
 } from "../store/modules/transactionsSlice";
+import { useNavigate } from "react-router-dom";
 
 export const ListTransactions = () => {
     const user: any = useSelector<any>((state) => state.auth);
     const transactions: any = useSelector<any>(getAllTransactions);
     const dispatch = useDispatch<any>();
+    const navigate = useNavigate();
+
+    const [type, setType] = useState("");
 
     const handleDelete = (id: string) => {
         console.log("Transacao: " + id);
@@ -25,9 +30,65 @@ export const ListTransactions = () => {
         dispatch(deleteTransactionAction({ id, userId: user.id }));
     };
 
+    const submitForm = (event: any) => {
+        event.preventDefault();
+
+        const title = event.target.title.value;
+        const type = event.target.type.value;
+
+        console.log(title);
+
+        dispatch(
+            listTransactionsAction({
+                id: user.id,
+                title,
+                type,
+            })
+        );
+    };
+
+    const handleChange = (event: any) => {
+        const title = event.target.value;
+
+        dispatch(
+            listTransactionsAction({
+                id: user.id,
+                title,
+                type,
+            })
+        );
+    };
+
     return (
         <div>
             <p>Tabela de Transações:</p>
+            <Button
+                variant="contained"
+                onClick={() => navigate("/transaction")}
+            >
+                Criar Transação
+            </Button>
+
+            <form onSubmit={submitForm}>
+                <label>Title: </label>
+                <input type="text" name="title" onChange={handleChange} />
+                <br />
+
+                <label>Type: </label>
+                <select
+                    name="type"
+                    id="type"
+                    value={type}
+                    onChange={(event) => setType(event.target.value)}
+                >
+                    <option value="">Selecione uma opção...</option>
+                    <option value="income">Income</option>
+                    <option value="outcome">Outcome</option>
+                </select>
+
+                <Button type="submit">Filtrar</Button>
+            </form>
+
             <TableContainer component={Paper}>
                 <Table sx={{ minWidth: 650 }} aria-label="simple table">
                     <TableHead>
@@ -49,7 +110,13 @@ export const ListTransactions = () => {
                                     },
                                 }}
                             >
-                                <TableCell component="th" scope="row">
+                                <TableCell
+                                    component="th"
+                                    scope="row"
+                                    onClick={() =>
+                                        navigate(`/transaction/${row.id}`)
+                                    }
+                                >
                                     {row.id}
                                 </TableCell>
                                 <TableCell align="right">{row.title}</TableCell>

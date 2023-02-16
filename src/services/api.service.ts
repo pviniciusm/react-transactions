@@ -57,9 +57,15 @@ export const loginUser = async (login: any): Promise<ApiResponse> => {
     }
 };
 
-export const listTransactions = async (id: string): Promise<ApiResponse> => {
+export const listTransactions = async (
+    transaction: any
+): Promise<ApiResponse> => {
     try {
-        const result = await api.get(`/users/${id}/transactions`);
+        const result = await api.get(
+            `/users/${transaction.id}/transactions?title=${
+                transaction.title ?? ""
+            }&type=${transaction.type ?? ""}`
+        );
         console.log(result);
 
         return result.data;
@@ -97,3 +103,67 @@ export const deleteTransaction = async (
         };
     }
 };
+
+interface UpdateTransactionProps {
+    userId: string;
+    id: string;
+    title?: string;
+    value?: "income" | "outcome";
+}
+
+export const updateTransaction = async (transaction: UpdateTransactionProps) => {
+    try {
+        const result = await api.put(
+            `/users/${transaction.userId}/transactions/${transaction.id}`,
+            transaction
+        );
+        return result.data;
+    } catch (error: any) {
+        console.log(error);
+        if (error.request?.response) {
+            return JSON.parse(error.request?.response);
+        }
+
+        return {
+            ok: false,
+            message: error.toString(),
+        };
+    }
+};
+
+export const createTransaction = async (transaction: any) => {
+    try {
+        const result = await api.post(
+            `/users/${transaction.userId}/transactions`,
+            transaction
+        );
+        return result.data;
+    } catch (error: any) {
+        console.log(error);
+        if (error.request?.response) {
+            return JSON.parse(error.request?.response);
+        }
+
+        return {
+            ok: false,
+            message: error.toString(),
+        };
+    }
+};
+
+
+interface UserBase {
+    username: string;
+}
+
+interface UserLogin {
+    username: string;
+    password: string;
+}
+
+interface UserList {
+    username: string;
+    name: string;
+    tasks: tasks[];
+}
+

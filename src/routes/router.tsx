@@ -21,4 +21,8 @@ export const router = createBrowserRouter([
         path: "/transaction/:id",
         element: <TransactionPage />,
     },
+    {
+        path: "/transaction",
+        element: <TransactionPage />,
+    },
 ]);

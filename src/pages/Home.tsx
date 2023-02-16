@@ -22,7 +22,11 @@ export const HomePage = () => {
         setName(user.name);
         setId(user.id);
 
-        dispatch(listTransactionsAction(user.id));
+        dispatch(
+            listTransactionsAction({
+                id: user.id,
+            })
+        );
     }, []);
 
     // useEffect(() => {

@@ -4,14 +4,16 @@ import {
     createSlice,
 } from "@reduxjs/toolkit";
 import {
+    createTransaction,
     deleteTransaction,
     listTransactions,
+    updateTransaction,
 } from "../../services/api.service";
 
 export const listTransactionsAction = createAsyncThunk(
     "transactions/list",
-    async (id: string) => {
-        const result = await listTransactions(id);
+    async (transaction: any) => {
+        const result = await listTransactions(transaction);
 
         if (result.ok) {
             return result.data.transactions;
@@ -29,6 +31,51 @@ export const deleteTransactionAction = createAsyncThunk(
             transaction.userId
         );
         return result.data;
+    }
+);
+
+export const updateTransactionAction = createAsyncThunk(
+    "transactions/update",
+    async (transaction: any) => {
+        const result = await updateTransaction(transaction);
+        let changes = {};
+
+        if (result.ok) {
+            changes = {
+                title: transaction.title,
+                value: transaction.value,
+            };
+        }
+
+        return {
+            id: transaction.id,
+            changes,
+            ok: result.ok,
+        };
+    }
+);
+
+export const createTransactionAction = createAsyncThunk(
+    "transactions/create",
+    async (transaction: any) => {
+        const result = await createTransaction({
+            ...transaction,
+            type: "income",
+        });
+
+        console.log(result);
+
+        if (result.ok) {
+            return {
+                ok: true,
+                data: result.data.transactions,
+            };
+        }
+
+        // to-do: verificar
+        return {
+            ok: false,
+        };
     }
 );
 
@@ -59,6 +106,15 @@ const transactionsSlice = createSlice({
         builder.addCase(
             deleteTransactionAction.fulfilled,
             transactionsAdapter.removeOne
+        );
+
+        builder.addCase(
+            updateTransactionAction.fulfilled,
+            transactionsAdapter.updateOne
+        );
+
+        builder.addCase(createTransactionAction.fulfilled, (state, action) =>
+            transactionsAdapter.setAll(state, action.payload.data)
         );
     },
 });
